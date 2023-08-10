@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import Card from './components/Card';
+import Button from './components/Button';
 
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
@@ -39,19 +40,25 @@ const dealCards = () => {
 
 export default function App() {
   const [cards, setCards] = useState(dealCards);
-  const [selected, setSelected] = useState(0);
   const [result, setResult] = useState('');
+  const [status, setStatus] = useState('play');
 
-  function compareCards() {
+  function handleCompare() {
     // Pick the first stat of both cards
-    const playerStat = cards.player[0].stats[selected];
-    const opponentStat = cards.opponent[0].stats[selected];
+    const playerStat = cards.player[0].stats[0];
+    const opponentStat = cards.opponent[0].stats[0];
 
     setResult(() => {
       if (playerStat.value === opponentStat.value) return 'draw';
       else if (playerStat.value > opponentStat.value) return 'win';
       else return 'loss';
     });
+    setStatus('restart');
+  }
+
+  function handleNextRound() {
+    setResult('');
+    setStatus('play');
   }
 
   return (
@@ -70,9 +77,11 @@ export default function App() {
         </div>
         <div className="center-area">
           <p>{result || 'press the button'}</p>
-          <button onClick={compareCards} className="play-button" type="button">
-            Play
-          </button>
+          <Button
+            status={status}
+            compare={handleCompare}
+            next={handleNextRound}
+          />
         </div>
         <div className="hand opponent">
           <h2>Opponent</h2>
