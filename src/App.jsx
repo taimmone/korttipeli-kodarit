@@ -1,64 +1,67 @@
 import { useState } from 'react';
 import './App.css';
 import Card from './components/Card';
-import Button from './components/Button';
+import PlayButton from './components/PlayButton';
+import { dealCards } from './cards';
 
-const rand = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
-
-const createCard = index => ({
-  id: crypto.randomUUID(),
-  image: `http://placekitten.com/120/100?image=${index}`,
-  stats: [
-    { name: 'Cuteness', value: rand(3, 15) },
-    { name: 'Playfulness', value: rand(6, 20) },
-    { name: 'Friendliness', value: rand(1, 25) },
-  ],
+const Result = Object.freeze({
+  WIN: 'win',
+  DRAW: 'draw',
+  LOSS: 'loss',
 });
 
-const deck = Array(16)
-  .fill(null)
-  .map((_, index) => createCard(index));
-
-const half = Math.ceil(deck.length / 2);
-
-function shuffle(array) {
-  // Fisher-Yates shuffle
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-const dealCards = () => {
-  shuffle(deck);
-  return {
-    player: deck.slice(0, half),
-    opponent: deck.slice(half),
-  };
-};
+const GameState = Object.freeze({
+  READY: 'ready',
+  RESULT: 'result',
+});
 
 export default function App() {
   const [cards, setCards] = useState(dealCards);
-  const [result, setResult] = useState('');
-  const [status, setStatus] = useState('play');
+  const [result, setResult] = useState(null);
+  const [gameState, setGameState] = useState(GameState.READY);
 
-  function handleCompare() {
+  function compare() {
     // Pick the first stat of both cards
     const playerStat = cards.player[0].stats[0];
     const opponentStat = cards.opponent[0].stats[0];
 
     setResult(() => {
-      if (playerStat.value === opponentStat.value) return 'draw';
-      else if (playerStat.value > opponentStat.value) return 'win';
-      else return 'loss';
+      if (playerStat.value === opponentStat.value) return Result.DRAW;
+      if (playerStat.value > opponentStat.value) return Result.WIN;
+      return Result.LOSS;
     });
-    setStatus('restart');
+    setGameState(GameState.RESULT);
   }
 
-  function handleNextRound() {
-    setResult('');
-    setStatus('play');
+  function nextRound() {
+    setCards(cards => {
+      if (result === Result.DRAW) {
+        // Remove the first card of both players
+        return {
+          player: cards.player.slice(1),
+          opponent: cards.opponent.slice(1),
+        };
+      }
+      if (result === Result.WIN) {
+        // Give player the opponent's card
+        return {
+          player: [...cards.player, { ...cards.opponent[0] }],
+          opponent: cards.opponent.slice(1),
+        };
+      }
+      if (result === Result.LOSS) {
+        // Give opponent the player's card
+        return {
+          player: cards.player.slice(1),
+          opponent: [...cards.opponent, { ...cards.player[0] }],
+        };
+      }
+      // If the result does not match previous cases
+      return cards;
+    });
+
+    setResult(null);
+    setGameState(GameState.READY);
   }
 
   return (
@@ -77,11 +80,11 @@ export default function App() {
         </div>
         <div className="center-area">
           <p>{result || 'press the button'}</p>
-          <Button
-            status={status}
-            compare={handleCompare}
-            next={handleNextRound}
-          />
+          {gameState === GameState.READY ? (
+            <PlayButton text={'Play'} handleClick={compare} />
+          ) : (
+            <PlayButton text={'Next'} handleClick={nextRound} />
+          )}
         </div>
         <div className="hand opponent">
           <h2>Opponent</h2>

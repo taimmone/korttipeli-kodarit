@@ -6,12 +6,18 @@
 
 .game {
   display: flex;
-  gap: 20px;
+}
+
+.center-area {
+  text-align: center;
+  align-self: center;
+  min-width: 20vw;
 }
 
 .hand {
   display: flex;
   flex-direction: column;
+  min-width: 40vw;
 }
 
 .hand.player > h2 {
@@ -34,13 +40,13 @@
 }
 
 .card-list-item.player {
-  margin: 0 0 0 calc(6vw - 150px);
+  margin-left: calc(6vw - 150px);
   /* box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.25);
   border-radius: 8px; */
 }
 
 .card-list-item.opponent {
-  margin: 0 calc(6vw - 150px) 0 0;
+  margin-right: calc(6vw - 150px);
   direction: ltr;
   /* box-shadow: 1px 0px 1px 0px rgba(0, 0, 0, 0.25);
   border-radius: 8px; */
@@ -83,10 +89,4 @@
 
 .stat-list-item.selected {
   background-color: red;
-}
-
-.center-area {
-  text-align: center;
-  align-self: center;
-  min-width: 8rem;
 }
