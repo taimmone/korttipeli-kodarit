@@ -31,20 +31,19 @@
 }
 
 .card-list-item {
-  list-style: none;
 }
 
 .card-list-item.player {
-  margin: 0 0 0 -96px;
-  box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
+  margin: 0 0 0 calc(6vw - 150px);
+  /* box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.25);
+  border-radius: 8px; */
 }
 
 .card-list-item.opponent {
-  margin: 0 -96px 0 0;
+  margin: 0 calc(6vw - 150px) 0 0;
   direction: ltr;
-  box-shadow: 1px 0px 1px 0px rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
+  /* box-shadow: 1px 0px 1px 0px rgba(0, 0, 0, 0.25);
+  border-radius: 8px; */
 }
 
 .play-button {
@@ -64,21 +63,15 @@
   overflow: hidden;
 }
 
-.Card.empty {
-  background-color: #d9d4bb;
-  border: 1px solid #ffffff;
-}
-.Card.empty > * {
-  display: none;
+.Card.back {
+  background-color: #f1efe2;
 }
 
 .stat-list {
-  margin: 0;
   padding: 0 4px;
 }
 
 .stat-list-item {
-  list-style: none;
   display: flex;
   justify-content: space-between;
 }
@@ -90,4 +83,10 @@
 
 .stat-list-item.selected {
   background-color: red;
+}
+
+.center-area {
+  text-align: center;
+  align-self: center;
+  min-width: 8rem;
 }

@@ -2,33 +2,40 @@ import { useState } from 'react';
 import './App.css';
 import Card from './components/Card';
 
-const deckSize = 16;
+const rand = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-const getRandomInt = (min, max) =>
-  Math.floor(Math.random() * (max - min + 1) + min);
-
-const card = () => ({
-  image: `http://placekitten.com/120/100?image=${getRandomInt(0, 16)}`,
+const createCard = index => ({
+  id: crypto.randomUUID(),
+  image: `http://placekitten.com/120/100?image=${index}`,
   stats: [
-    { name: 'Cuteness', value: getRandomInt(3, 15) },
-    { name: 'Playfulness', value: getRandomInt(6, 20) },
-    { name: 'Friendliness', value: getRandomInt(1, 25) },
+    { name: 'Cuteness', value: rand(3, 15) },
+    { name: 'Playfulness', value: rand(6, 20) },
+    { name: 'Friendliness', value: rand(1, 25) },
   ],
 });
 
-const withId = obj => ({
-  ...obj,
-  id: crypto.randomUUID(),
-});
-const emptyArray = size => Array(size).fill(null);
+const deck = Array(16)
+  .fill(null)
+  .map((_, index) => createCard(index));
 
-const deck = emptyArray(deckSize).map(card).map(withId);
 const half = Math.ceil(deck.length / 2);
 
-const dealCards = () => ({
-  player: deck.slice(0, half),
-  opponent: deck.slice(half),
-});
+function shuffle(array) {
+  // Fisher-Yates shuffle
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+const dealCards = () => {
+  shuffle(deck);
+  return {
+    player: deck.slice(0, half),
+    opponent: deck.slice(half),
+  };
+};
 
 export default function App() {
   const [cards, setCards] = useState(dealCards);
@@ -39,48 +46,43 @@ export default function App() {
     // Pick the first stat of both cards
     const playerStat = cards.player[0].stats[selected];
     const opponentStat = cards.opponent[0].stats[selected];
-    // Create a variable to hold the result
-    let result = '';
-    // Compare the values of both stats and set the result
-    if (playerStat.value === opponentStat.value) result = 'draw';
-    else if (playerStat.value > opponentStat.value) result = 'win';
-    else result = 'loss';
-    // Finally, log the result
-    console.log(result);
+
+    setResult(() => {
+      if (playerStat.value === opponentStat.value) return 'draw';
+      else if (playerStat.value > opponentStat.value) return 'win';
+      else return 'loss';
+    });
   }
 
   return (
     <>
       <h1>Korttipeli</h1>
-      {selected}
       <div className="game">
         <div className="hand player">
           <h2>Player</h2>
           <ul className="card-list player">
-            {cards.player.map((card, index) => (
-              <li className="card-list-item player" key={card.id}>
-                <Card
-                  card={card}
-                  index={index}
-                  selected={selected}
-                  handleSelect={setSelected}
-                />
+            {cards.player.map((playerCard, index) => (
+              <li className="card-list-item player" key={playerCard.id}>
+                <Card card={index === 0 ? playerCard : null} />
               </li>
             ))}
           </ul>
         </div>
-        <button onClick={compareCards} className="play-button" type="button">
-          Play
-        </button>
+        <div className="center-area">
+          <p>{result || 'press the button'}</p>
+          <button onClick={compareCards} className="play-button" type="button">
+            Play
+          </button>
+        </div>
         <div className="hand opponent">
+          <h2>Opponent</h2>
           <div className="card-list opponent">
-            {cards.opponent.map((card, index) => (
-              <li className="card-list-item opponent" key={card.id}>
-                <Card card={card} index={index} />
+            {cards.opponent.map((opponentCard, index) => (
+              <li className="card-list-item opponent" key={opponentCard.id}>
+                <Card card={index === 0 ? opponentCard : null} />
               </li>
             ))}
           </div>
-          <h2>Opponent</h2>
         </div>
       </div>
     </>

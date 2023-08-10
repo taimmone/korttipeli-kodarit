@@ -1,16 +1,11 @@
-export default function Card({ card, index, selected, handleSelect }) {
+export default function Card({ card }) {
+  if (!card) return <div className="Card back" />;
   return (
-    <div className={`Card${index !== 0 ? ' empty' : ''}`}>
+    <div className="Card">
       <img src={card.image} draggable="false" />
       <ul className="stat-list">
         {card.stats.map((stat, index) => (
-          <li
-            onClick={() => handleSelect(index)}
-            className={`stat-list-item ${
-              selected === index ? ' selected' : ''
-            }`}
-            key={index}
-          >
+          <li className="stat-list-item" key={index}>
             <span>{stat.name}</span>
             <span>{stat.value}</span>
           </li>
