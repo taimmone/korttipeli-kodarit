@@ -5,7 +5,8 @@
 }
 
 .game {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
 }
 
 .center-area {
@@ -17,7 +18,7 @@
 .hand {
   display: flex;
   flex-direction: column;
-  min-width: 40vw;
+  max-width: 40vw;
 }
 
 .hand.player > h2 {
@@ -27,6 +28,7 @@
 .card-list {
   display: flex;
   flex-direction: row-reverse;
+  max-width: 40vw;
 }
 
 .card-list.player {
@@ -89,4 +91,10 @@
 
 .stat-list-item.selected {
   background-color: red;
+}
+
+@media (max-width: 512px) {
+  .game {
+    flex-direction: column;
+  }
 }
