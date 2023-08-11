@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import './App.css';
-import Card from './components/Card';
-import PlayButton from './components/PlayButton';
 import { dealCards } from './cards';
+import Button from './components/Button';
+import CardList from './components/CardList';
 
 const Result = Object.freeze({
   WIN: 'win',
@@ -10,15 +10,19 @@ const Result = Object.freeze({
   LOSS: 'loss',
 });
 
-const GameState = Object.freeze({
-  READY: 'ready',
-  RESULT: 'result',
-});
+// const GameState = Object.freeze({
+//   NEW_GAME: 'new game',
+//   READY: 'ready',
+//   RESULT: 'result',
+//   GAME_OVER: 'game over',
+// });
 
 export default function App() {
   const [cards, setCards] = useState(dealCards);
   const [result, setResult] = useState(null);
-  const [gameState, setGameState] = useState(GameState.READY);
+  // const [gameState, setGameState] = useState(GameState.NEW_GAME);
+
+  const end = !cards.opponent.length || !cards.player.length;
 
   function compare() {
     // Pick the first stat of both cards
@@ -30,7 +34,7 @@ export default function App() {
       if (playerStat.value > opponentStat.value) return Result.WIN;
       return Result.LOSS;
     });
-    setGameState(GameState.RESULT);
+    // setGameState(GameState.RESULT);
   }
 
   function nextRound() {
@@ -61,40 +65,66 @@ export default function App() {
     });
 
     setResult(null);
-    setGameState(GameState.READY);
+    // setGameState(GameState.READY);
   }
+
+  function restartGame() {
+    setCards(dealCards);
+    setResult(null);
+    // setGameState(GameState.READY);
+  }
+
+  function endResult() {
+    if (!cards.opponent.length && !cards.player.length) return 'Draw!';
+    if (!cards.opponent.length) return 'Player win!';
+    return 'Player loss!';
+  }
+
+  // if (gameState === GameState.NEW_GAME)
+  //   return (
+  //     <div className="overlay">
+  //       <h2>Start game</h2>
+  //       <Button
+  //         text="Start"
+  //         handleClick={() => setGameState(GameState.READY)}
+  //       />
+  //     </div>
+  //   );
+  // if (end)
+  //   return (
+  //     <div className="overlay">
+  //       <h2>Game over!</h2>
+  //       <h3>{endResult()}</h3>
+  //       <Button text="Restart" handleClick={restartGame} />
+  //     </div>
+  //   );
 
   return (
     <>
-      <h1>Korttipeli</h1>
+      <h1>Card game</h1>
       <div className="game">
+        {end && (
+          <div className="overlay">
+            <h2>Game over!</h2>
+            <h3>{endResult()}</h3>
+            <Button text="Restart" handleClick={restartGame} />
+          </div>
+        )}
         <div className="hand player">
           <h2>Player</h2>
-          <ul className="card-list player">
-            {cards.player.map((playerCard, index) => (
-              <li className="card-list-item player" key={playerCard.id}>
-                <Card card={index === 0 ? playerCard : null} />
-              </li>
-            ))}
-          </ul>
+          <CardList cards={cards.player} player />
         </div>
         <div className="center-area">
           <p>{result || 'press the button'}</p>
-          {gameState === GameState.READY ? (
-            <PlayButton text={'Play'} handleClick={compare} />
+          {result ? (
+            <Button text={'Next'} handleClick={nextRound} />
           ) : (
-            <PlayButton text={'Next'} handleClick={nextRound} />
+            <Button text={'Play'} handleClick={compare} />
           )}
         </div>
         <div className="hand opponent">
           <h2>Opponent</h2>
-          <div className="card-list opponent">
-            {cards.opponent.map((opponentCard, index) => (
-              <li className="card-list-item opponent" key={opponentCard.id}>
-                <Card card={index === 0 ? opponentCard : null} />
-              </li>
-            ))}
-          </div>
+          <CardList cards={cards.opponent} />
         </div>
       </div>
     </>
