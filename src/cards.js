@@ -2,11 +2,12 @@ const rand = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const createCard = index => ({
   id: crypto.randomUUID(),
-  image: `http://placekitten.com/120/100?image=${index}`,
+  name: 'Lorem ipsum',
+  image: `http://placekitten.com/140/120?image=${index}`,
   stats: [
-    { name: 'Cuteness', value: rand(3, 15) },
-    { name: 'Playfulness', value: rand(6, 20) },
-    { name: 'Friendliness', value: rand(1, 25) },
+    { name: 'Cuteness', value: rand(3, 15), max: 15 },
+    { name: 'Playful', value: rand(6, 20), max: 20 },
+    { name: 'Loving', value: rand(1, 25), max: 25 },
   ],
 });
 

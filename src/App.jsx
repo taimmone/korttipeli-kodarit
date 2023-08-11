@@ -2,62 +2,52 @@ import { useState } from 'react';
 import './App.css';
 import { dealCards } from './cards';
 import Button from './components/Button';
-import CardList from './components/CardList';
+import Card from './components/Card';
 
 const Result = Object.freeze({
   WIN: 'win',
   DRAW: 'draw',
   LOSS: 'loss',
 });
-
-// const GameState = Object.freeze({
-//   NEW_GAME: 'new game',
-//   READY: 'ready',
-//   RESULT: 'result',
-//   GAME_OVER: 'game over',
-// });
-
 export default function App() {
   const [cards, setCards] = useState(dealCards);
   const [result, setResult] = useState(null);
-  // const [gameState, setGameState] = useState(GameState.NEW_GAME);
+  const [selectedStat, setSelected] = useState(0);
 
   const end = !cards.opponent.length || !cards.player.length;
 
   function compare() {
-    // Pick the first stat of both cards
-    const playerStat = cards.player[0].stats[0];
-    const opponentStat = cards.opponent[0].stats[0];
+    const playerStat = cards.player[0].stats[selectedStat];
+    const opponentStat = cards.opponent[0].stats[selectedStat];
 
     setResult(() => {
       if (playerStat.value === opponentStat.value) return Result.DRAW;
       if (playerStat.value > opponentStat.value) return Result.WIN;
       return Result.LOSS;
     });
-    // setGameState(GameState.RESULT);
   }
 
   function nextRound() {
     setCards(cards => {
+      const playedCards = [{ ...cards.player[0] }, { ...cards.opponent[0] }];
+      const player = cards.player.slice(1);
+      const opponent = cards.opponent.slice(1);
       if (result === Result.DRAW) {
-        // Remove the first card of both players
         return {
-          player: cards.player.slice(1),
-          opponent: cards.opponent.slice(1),
+          player,
+          opponent,
         };
       }
       if (result === Result.WIN) {
-        // Give player the opponent's card
         return {
-          player: [...cards.player, { ...cards.opponent[0] }],
-          opponent: cards.opponent.slice(1),
+          player: [...player, ...playedCards],
+          opponent,
         };
       }
       if (result === Result.LOSS) {
-        // Give opponent the player's card
         return {
-          player: cards.player.slice(1),
-          opponent: [...cards.opponent, { ...cards.player[0] }],
+          player,
+          opponent: [...opponent, ...playedCards],
         };
       }
       // If the result does not match previous cases
@@ -65,13 +55,11 @@ export default function App() {
     });
 
     setResult(null);
-    // setGameState(GameState.READY);
   }
 
   function restartGame() {
     setCards(dealCards);
     setResult(null);
-    // setGameState(GameState.READY);
   }
 
   function endResult() {
@@ -79,25 +67,6 @@ export default function App() {
     if (!cards.opponent.length) return 'Player win!';
     return 'Player loss!';
   }
-
-  // if (gameState === GameState.NEW_GAME)
-  //   return (
-  //     <div className="overlay">
-  //       <h2>Start game</h2>
-  //       <Button
-  //         text="Start"
-  //         handleClick={() => setGameState(GameState.READY)}
-  //       />
-  //     </div>
-  //   );
-  // if (end)
-  //   return (
-  //     <div className="overlay">
-  //       <h2>Game over!</h2>
-  //       <h3>{endResult()}</h3>
-  //       <Button text="Restart" handleClick={restartGame} />
-  //     </div>
-  //   );
 
   return (
     <>
@@ -112,7 +81,17 @@ export default function App() {
         )}
         <div className="hand player">
           <h2>Player</h2>
-          <CardList cards={cards.player} player />
+          <ul className="card-list player">
+            {cards.player.map((card, index) => (
+              <li className="card-list-item player" key={card.id}>
+                <Card
+                  card={index === 0 ? card : null}
+                  handleSelect={statIndex => !result && setSelected(statIndex)}
+                  selected={selectedStat}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="center-area">
           <p>{result || 'press the button'}</p>
@@ -124,7 +103,16 @@ export default function App() {
         </div>
         <div className="hand opponent">
           <h2>Opponent</h2>
-          <CardList cards={cards.opponent} />
+          <ul className="card-list opponent">
+            {cards.opponent.map((card, index) => (
+              <li className="card-list-item opponent" key={card.id}>
+                <Card
+                  card={result && index === 0 ? card : null}
+                  selected={selectedStat}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </>
